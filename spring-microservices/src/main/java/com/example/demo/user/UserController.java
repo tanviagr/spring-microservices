@@ -1,6 +1,12 @@
 package com.example.demo.user;
 
+import com.example.demo.exception.ExceptionResponse;
 import com.example.demo.exception.ResourceNotFoundException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
@@ -22,12 +28,35 @@ public class UserController
     @Autowired
     private UserDaoService service;
 
+    @Operation(summary = "Get All Users")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Users Found",
+            content = { @Content(mediaType = "application/json", schema = @Schema(implementation = User.class)),
+//                    @Content(mediaType = "application/xml", schema = @Schema(implementation = User.class))
+            })
+    })
     @GetMapping(path = "/users")
     public List<User> getAllUsers()
     {
         return service.findAll();
     }
 
+    @Operation(summary = "Get a User by their ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User Found",
+                    content = { @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = User.class)
+                    ) }),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = {
+                        @Content(
+                                mediaType = "application/json",
+                                schema = @Schema(implementation = ExceptionResponse.class)
+                        )
+                    })
+//                    content = @Content(mediaType = "application/json")
+    })
     @GetMapping(path = "/users/{id}")
     public EntityModel<User> getUser(@PathVariable int id)
     {
