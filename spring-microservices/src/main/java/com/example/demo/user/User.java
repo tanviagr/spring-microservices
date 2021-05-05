@@ -1,6 +1,7 @@
 package com.example.demo.user;
 
 import com.sun.istack.Nullable;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
@@ -9,9 +10,11 @@ import java.util.Date;
 public class User
 {
     @Size(min = 2, message =  "name should have atleast 2 characters")
+    @Schema(description = "Name should have atleast 2 characters")
     private String firstName;
 
     @Past
+    @Schema(description = "Birthdate should be in the past")
     private Date birthDate;
 
     private Integer id;
