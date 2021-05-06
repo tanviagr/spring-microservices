@@ -1,14 +1,17 @@
 package com.example.demo.filtering;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import net.minidev.json.annotate.JsonIgnore;
 
-@JsonIgnoreProperties(value = {"field2"})
+//@JsonIgnoreProperties(value = {"field2"}) -> static filtering = never return that field. (ex : Password)
+@JsonFilter("someBeanFilter")
 public class FilteredBean
 {
     private String field1;
 
 //    this is some sensitive field - dont want to display in GET results
+//    this does not show up in the Schema of FilteredBean in the Swagger documentation too.
     private String field2;
 
     private String field3;
