@@ -6,6 +6,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PersonVersionController
 {
+    /*
+    Factors to consider =
+    1. URI polluting - in uri versioning and param versioning, we pollute the URI space
+    2. Misuse of Http Headers - they were never meant for versioning, like in content negotiation and header versioning
+    3. caching - we cannot cache uri and param versioning because request body has changed.
+    4. users cannot execute header related versioning on browsers without additional plugins.
+    5. think about documentation of the API (difficult with headers)
+    but these are used everywhere. there is no perfect solution. but do finalize the versioning before developing.
+     */
 //  1.  URI VERSIONING
     @GetMapping(path = "v1/person")
     public PersonV1 getPersonV1()
