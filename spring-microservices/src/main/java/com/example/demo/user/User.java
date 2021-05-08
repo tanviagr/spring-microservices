@@ -26,6 +26,9 @@ public class User
     @GeneratedValue
     private Integer id;
 
+    public User() {
+    }
+
     public User(String firstName, Date birthDate, Integer id) {
         this.firstName = firstName;
         this.birthDate = birthDate;
