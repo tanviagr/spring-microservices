@@ -19,14 +19,14 @@ import java.util.Date;
 public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler
 {
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR) //for swagger
     public final ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) throws Exception
     {
         ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), request.getDescription(false));
         return new ResponseEntity(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler({UserNotFoundException.class, ResourceNotFoundException.class})
+    @ExceptionHandler({UserNotFoundException.class, ResourceNotFoundException.class, PostNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public final ResponseEntity<Object> handleResourcesNotException(Exception ex, WebRequest request) throws Exception
     {
