@@ -1,7 +1,6 @@
 package com.example.demo.user;
 
 import com.example.demo.exception.ExceptionResponse;
-import com.example.demo.exception.ResourceNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -18,27 +16,28 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-public class UserController
+public class UserJPAController
 {
     @Autowired
-    private UserDaoService service;
+    private UserRepository repository;
 
     @Operation(summary = "Get All Users")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Users Found",
-            content = { @Content(mediaType = "application/json", schema = @Schema(implementation = User.class)),
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = User.class)),
 //                    @Content(mediaType = "application/xml", schema = @Schema(implementation = User.class))
-            })
+                    })
     })
-    @GetMapping(path = "/users")
+    @GetMapping(path = "jpa/users")
     public List<User> getAllUsers()
     {
-        return service.findAll();
+        return repository.findAll();
     }
 
     @Operation(summary = "Get a User by their ID")
@@ -50,23 +49,23 @@ public class UserController
                     ) }),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = {
-                        @Content(
-                                mediaType = "application/json",
-                                schema = @Schema(implementation = ExceptionResponse.class)
-                        )
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ExceptionResponse.class)
+                            )
                     })
 //                    content = @Content(mediaType = "application/json")
     })
-    @GetMapping(path = "/users/{id}")
+    @GetMapping(path = "jpa/users/{id}")
     public EntityModel<User> getUser(@PathVariable int id)
     {
-        User user = service.getUser(id);
+        Optional<User> user = repository.findById(id);
 //        returns a status code of 404 if the exception is thrown
-        if (user == null)
+        if (!user.isPresent())
         {
             throw new UserNotFoundException("id = " + id);
         }
-        EntityModel<User> resource = EntityModel.of(user);
+        EntityModel<User> resource = EntityModel.of(user.get());
         WebMvcLinkBuilder linkTo = linkTo(methodOn(this.getClass()).getAllUsers());
         resource.add(linkTo.withRel("all-users"));
 
@@ -74,10 +73,16 @@ public class UserController
         return resource;
     }
 
-    @PostMapping(path = "/users")
+    @DeleteMapping(path = "jpa/users/{id}")
+    public void deleteUser(@PathVariable int id)
+    {
+        repository.deleteById(id);
+    }
+
+    @PostMapping(path = "jpa/users")
     public ResponseEntity<Object> saveUser(@Valid @RequestBody User user)
     {
-        User savedUser = service.saveUser(user);
+        User savedUser = repository.save(user);
         URI location =  ServletUriComponentsBuilder
                 .fromCurrentRequest() // get /users
                 .path("/{id}")
@@ -88,24 +93,22 @@ public class UserController
 //        return HTTP Code CREATED
     }
 
-    @DeleteMapping(path = "/users/{id}")
-    public User deleteUser(@PathVariable int id)
+    @GetMapping(path = "jpa/users/{id}/posts")
+    public List<Post> getAllPostsForUser(@PathVariable int id)
     {
-        User user = service.deleteUser(id);
-        if (user != null)
+        Optional<User> user = repository.findById(id);
+        if (!user.isPresent())
         {
-            return user;
+            throw new UserNotFoundException("id = " + id);
         }
-        else
-        {
-            throw new UserNotFoundException("userId = " + id);
-        }
+        return user.get().getPosts();
     }
 
-    @GetMapping(path = "/users/{userId}/posts")
+    /*
+@GetMapping(path = "jpa/users/{userId}/posts")
     public List<Post> getAllPostsForAUser(@PathVariable int userId)
     {
-        List<Post> allPostsForUser = service.getAllPostsForUser(userId);
+        List<Post> allPostsForUser = repository.getAllPostsForUser(userId);
         if (allPostsForUser != null)
         {
             return allPostsForUser;
@@ -116,10 +119,10 @@ public class UserController
         }
     }
 
-    @PostMapping(path = "/users/{userId}/posts")
+    @PostMapping(path = "jpa/users/{userId}/posts")
     public ResponseEntity<Object> createPostForUser(@PathVariable int userId, @Valid @RequestBody Post newPost)
     {
-        Post savedPost = service.savePostForUser(userId, newPost);
+        Post savedPost = repository.savePostForUser(userId, newPost);
         if (savedPost != null)
         {
             URI location =  ServletUriComponentsBuilder
@@ -135,10 +138,10 @@ public class UserController
         }
     }
 
-    @GetMapping(path = "/users/{userId}/posts/{postId}")
+    @GetMapping(path = "jpa/users/{userId}/posts/{postId}")
     public Post getPostForUser(@PathVariable int userId, @PathVariable int postId)
     {
-        Post post = service.getPost(userId, postId);
+        Post post = repository.getPost(userId, postId);
         if (post != null)
         {
             return post;
@@ -148,5 +151,5 @@ public class UserController
             throw new ResourceNotFoundException("userId = " + userId + " , postId = " + postId);
         }
     }
-
+    */
 }
