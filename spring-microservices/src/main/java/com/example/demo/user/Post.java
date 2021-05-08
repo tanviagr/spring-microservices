@@ -1,10 +1,10 @@
 package com.example.demo.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
-
 /*
 SQL for creation =
 create table post (id integer not null, description varchar(255), user_id integer, primary key (id))
@@ -26,6 +26,7 @@ So post2 will still get allocated to user 2.
  */
 
 @Schema(description = "This is the post that the user posts on social media")
+@JsonIgnoreProperties({"user"})
 @Entity
 public class Post
 {
@@ -43,6 +44,9 @@ public class Post
     public Post(Integer id, String description) {
         this.id = id;
         this.description = description;
+    }
+
+    public Post() {
     }
 
     public Integer getId() {

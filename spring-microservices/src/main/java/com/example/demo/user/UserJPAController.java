@@ -93,12 +93,19 @@ public class UserJPAController
 //        return HTTP Code CREATED
     }
 
+    @GetMapping(path = "jpa/users/{id}/posts")
+    public List<Post> getAllPostsForUser(@PathVariable int id)
+    {
+        Optional<User> user = repository.findById(id);
+        if (!user.isPresent())
+        {
+            throw new UserNotFoundException("id = " + id);
+        }
+        return user.get().getPosts();
+    }
+
     /*
-
-
-
-
-    @GetMapping(path = "jpa/users/{userId}/posts")
+@GetMapping(path = "jpa/users/{userId}/posts")
     public List<Post> getAllPostsForAUser(@PathVariable int userId)
     {
         List<Post> allPostsForUser = repository.getAllPostsForUser(userId);
