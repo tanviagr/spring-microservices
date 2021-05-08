@@ -1,6 +1,7 @@
 package com.example.demo.user;
 
 import com.example.demo.exception.ExceptionResponse;
+import com.example.demo.exception.PostNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -102,6 +103,23 @@ public class UserJPAController
             throw new UserNotFoundException("id = " + id);
         }
         return user.get().getPosts();
+    }
+
+    @GetMapping(path = "jpa/users/{userId}/posts/{postId}")
+    public Post getPostForUser(@PathVariable int userId, @PathVariable int postId)
+    {
+        Optional<User> userById = repository.findById(userId);
+        if (!userById.isPresent())
+        {
+            throw new UserNotFoundException("id = " + userId);
+        }
+        List<Post> allPostsByUser = userById.get().getPosts();
+        Optional<Post> postById = allPostsByUser.stream()
+                .filter(post -> post.getId() == postId)
+                .findAny();
+        if (!postById.isPresent())
+            throw new PostNotFoundException("id = " + postId);
+        return postById.get();
     }
 
     /*
