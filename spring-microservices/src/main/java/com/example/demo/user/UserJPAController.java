@@ -9,10 +9,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,11 +73,16 @@ public class UserJPAController
         return resource;
     }
 
-    /*
+    @DeleteMapping(path = "jpa/users/{id}")
+    public void deleteUser(@PathVariable int id)
+    {
+        repository.deleteById(id);
+    }
+
     @PostMapping(path = "jpa/users")
     public ResponseEntity<Object> saveUser(@Valid @RequestBody User user)
     {
-        User savedUser = repository.saveUser(user);
+        User savedUser = repository.save(user);
         URI location =  ServletUriComponentsBuilder
                 .fromCurrentRequest() // get /users
                 .path("/{id}")
@@ -86,19 +93,10 @@ public class UserJPAController
 //        return HTTP Code CREATED
     }
 
-    @DeleteMapping(path = "jpa/users/{id}")
-    public User deleteUser(@PathVariable int id)
-    {
-        User user = repository.deleteUser(id);
-        if (user != null)
-        {
-            return user;
-        }
-        else
-        {
-            throw new UserNotFoundException("userId = " + id);
-        }
-    }
+    /*
+
+
+
 
     @GetMapping(path = "jpa/users/{userId}/posts")
     public List<Post> getAllPostsForAUser(@PathVariable int userId)
