@@ -1,4 +1,5 @@
-Topics covered -  
+## Topics covered -  
+**REST APIs**
 1. Generic Exception Handling  
 2. Validations  
 3. Content Negotiation  
